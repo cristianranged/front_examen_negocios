@@ -1,5 +1,4 @@
-//funciones propias de la app
-const urlApi = "http://localhost:8088";//colocar la url con el puerto
+
 
 async function login(){
     var myForm = document.getElementById("myForm");
@@ -53,12 +52,12 @@ function listarAutomoviles(){
             'Authorization': localStorage.token
         },
     }
-    fetch(urlApi+"/carss/1",settings)
+    fetch(urlApi+"/carss",settings)
     .then(response => response.json())
     .then(function(cars){
         
             var automoviles = '';
-            for(const automovil of cars.data){
+            for(const automovil of cars){
                 console.log(automovil.id)
                 automoviles += `
                 <tr>
@@ -71,6 +70,7 @@ function listarAutomoviles(){
                     <td>${automovil.car_vin}</td>
                     <td>${automovil.price}</td>
                     <td>${automovil.availability}</td>
+                    <td>${automovil.user.id}</td>
                     <td>
                     <button type="button" class="btn btn-outline-danger" 
                     onclick="eliminaUsuario('${usuario.id}')">
@@ -256,23 +256,23 @@ function registerForm1(){
                 <input type="number" class="form-control" id="price" name="price" required> <br>
 
                 <label for="availability" class="form-label">availability</label>
-                <input type="number" class="form-control" id="price" name="price" required> <br>
+                <input type="text" class="form-control" id="price" name="price" required> <br>
 
                 <button type="button" class="btn btn-outline-info" onclick="registrarAutomovil()">Registrar</button>
             </form>`;
             document.getElementById("contentModal").innerHTML = cadena;
-            var myModal = new bootstrap.Modal(document.getElementById('modalUsuario'))
+            var myModal = new bootstrap.Modal(document.getElementById('modalAutomovil'))
             myModal.toggle();
 }
 
 async function registrarAutomovil(){
-    var myForm = document.getElementById("myform1");
+    var myForm = document.getElementById("myform2");
     var formData = new FormData(myForm);
     var jsonData = {};
     for(var [k, v] of formData){//convertimos los datos a json
         jsonData[k] = v;
     }
-    const request = await fetch(urlApi+"/user", {
+    const request = await fetch(urlApi+"/carss", {
         method: 'POST',
         headers:{
             'Accept': 'application/json',
@@ -283,7 +283,7 @@ async function registrarAutomovil(){
     listar();
     alertas("Se ha registrado el usuario exitosamente!",1)
     document.getElementById("contentModal").innerHTML = '';
-    var myModalEl = document.getElementById('modalUsuario')
+    var myModalEl = document.getElementById('modalAutomovil')
     var modal = bootstrap.Modal.getInstance(myModalEl) // Returns a Bootstrap modal instance
     modal.hide();
 }
@@ -298,7 +298,7 @@ function modalConfirmacion(texto,funcion){
 
 function salir(){
     localStorage.clear();
-    location.href = "index.html";
+    location.href = "login.html";
 }
 
 function validaToken(){

@@ -31,7 +31,7 @@ async function login(){
 
         //localStorage.token = respuesta;
         localStorage.email = jsonData.email;      
-        location.href= "dashboard.html";
+        location.href= "home.html";
     }else{
         Swal.fire({
             position: 'center',
@@ -84,52 +84,7 @@ function listar(){
             document.getElementById("listar").innerHTML = usuarios;
     })
 }
-function listarAutomoviles(){
-    validaToken();
-    var settings={
-        method: 'GET',
-        headers:{
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': localStorage.token
-        },
-    }
-    fetch(urlApi+"/carss",settings)
-    .then(response => response.json())
-    .then(function(cars){
-        
-            var automoviles = '';
-            for(const automovil of cars.data){
-                console.log(automovil.id)
-                automoviles += `
-                <tr>
-                    <th scope="row">${automovil.id}</th>
-                    <td>${automovil.car}</td>
-                    <td>${automovil.car_model}</td>
-                    <td>${automovil.car_color}</td>
-                    <td>${automovil.car_model_year}</td>
-                    <td>${automovil.car_model_year}</td>
-                    <td>${automovil.car_vin}</td>
-                    <td>${automovil.price}</td>
-                    <td>${automovil.availability}</td>
-                    <td>
-                    <button type="button" class="btn btn-outline-danger" 
-                    onclick="eliminaUsuario('${usuario.id}')">
-                        <i class="fa-solid fa-user-minus"></i>
-                    </button>
-                    <a href="#" onclick="verModificarUsuario('${usuario.id}')" class="btn btn-outline-warning">
-                        <i class="fa-solid fa-user-pen"></i>
-                    </a>
-                    <a href="#" onclick="verUsuario('${usuario.id}')" class="btn btn-outline-info">
-                        <i class="fa-solid fa-eye"></i>
-                    </a>
-                    </td>
-                </tr>`;
-                
-            }
-            document.getElementById("listarAutomoviles").innerHTML = automovil;
-    })
-}
+
 function eliminaUsuario(id){
     validaToken();
     var settings={
@@ -248,6 +203,9 @@ function verUsuario(id){
     })
 }
 
+
+
+
 function alertas(mensaje,tipo){
     var color ="";
     if(tipo == 1){//success verde
@@ -320,7 +278,7 @@ function modalConfirmacion(texto,funcion){
 
 function salir(){
     localStorage.clear();
-    location.href = "index.html";
+    location.href = "login.html";
 }
 
 function validaToken(){
