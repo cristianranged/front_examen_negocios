@@ -93,9 +93,10 @@ function eliminaUsuario(id){
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': localStorage.token
+
         },
     }
-    fetch(urlApi+"/api/users/"+id,settings)
+    fetch(urlApi+"/user/"+id,settings)
     .then(response => response.json())
     .then(function(data){
         listar();
@@ -128,8 +129,10 @@ function verModificarUsuario(id){
                     <input type="hidden" name="id" id="id" value="${usuario.id}">
                     <label for="firstName" class="form-label">First Name</label>
                     <input type="text" class="form-control" name="firstName" id="firstName" required value="${usuario.firstName}"> <br>
+                    
                     <label for="lastName"  class="form-label">Last Name</label>
                     <input type="text" class="form-control" name="lastName" id="lastName" required value="${usuario.lastName}"> <br>
+                    
                     <label for="email" class="form-label">Email</label>
                     <input type="email" class="form-control" name="email" id="email" required value="${usuario.email}"> <br>
                     <label for="password" class="form-label">Password</label>
@@ -234,6 +237,7 @@ function registerForm(){
                 <input type="text" class="form-control" name="firstName" id="firstName" required> <br>
                 <label for="lastName"  class="form-label">Last Name</label>
                 <input type="text" class="form-control" name="lastName" id="lastName" required> <br>
+                
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" name="email" id="email" required> <br>
                 <label for="password" class="form-label">Password</label>
