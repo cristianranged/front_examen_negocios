@@ -1,6 +1,6 @@
 
 const urlApi = "http://localhost:8088/carss/";
-
+const urlApis = "http://localhost:8088/";
 function verAutomovil(id) {
     validaToken();
     var settings = {
@@ -205,11 +205,38 @@ function alertas(mensaje,tipo){
                  </div>`;
     document.getElementById("datos").innerHTML = alerta;
 }
+function user() {
+    validaToken();
+    var settings = {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.token
+        },
+    }
+    fetch(urlApis + "user", settings)
+        .then(response => response.json())
+        .then(function (users) {
+            usuarios=users.data
+            console.log(usuarios[0])
+            var select = document.getElementById("user");
 
+            for(var i = 0; i < usuarios.length; i++) {
+                var opcion = document.createElement("option");
+                opcion.text = usuarios[i].id;
+
+                select.add(opcion);
+
+            }
+
+        })
+}
 function registerForm1(){
+    user();
     cadena = `
             <div class="p-3 mb-2 bg-light text-dark">
-                <h1 class="display-5"><i class="fa-solid fa-user-pen"></i> User Register</h1>
+                <h1 class="display-5"><i class="fa-solid fa-user-pen"></i> Register Vehiculos</h1>
             </div>
               
             <form action="" method="post" id="myform2">
@@ -231,41 +258,54 @@ function registerForm1(){
                 <label for="car_vin" class="form-label">car vin year</label>
                 <input type="text" class="form-control" id="car_vin" name="car vin " required> <br>
 
-                <label for="car_model_year" class="form-label">car model year</label>
-                <input type="number" class="form-control" id="car_model_year" name="car model year" required> <br>
-
                 <label for="price" class="form-label">price</label>
                 <input type="number" class="form-control" id="price" name="price" required> <br>
 
                 <label for="availability" class="form-label">availability</label>
-                <input type="text" class="form-control" id="price" name="price" required> <br>
+                <select class="form-control" id="availability" name="availability" required>
+                       
+                        <option value="true">True</option>
+                        <option value="false" selected>False</option>
+                </select>
+
+                
+                <label for="user" class="form-label">Register user</label>
+                <select class="form-control" id="user" name="user" required>
+                   
+                </select>
 
                 <button type="button" class="btn btn-outline-info" onclick="registrarAutomovil()">Registrar</button>
             </form>`;
-            document.getElementById("contentModal").innerHTML = cadena;
-            var myModal = new bootstrap.Modal(document.getElementById('modalAutomovil'))
+            document.getElementById("contentModalm").innerHTML = cadena;
+            var myModal = new bootstrap.Modal(document.getElementById('modalautomovil'))
             myModal.toggle();
 }
 
 async function registrarAutomovil(){
+    validaToken()
     var myForm = document.getElementById("myform2");
     var formData = new FormData(myForm);
+
     var jsonData = {};
     for(var [k, v] of formData){//convertimos los datos a json
         jsonData[k] = v;
     }
-    const request = await fetch(urlApi+"/carss", {
+    jsonData=jsonData
+    console.log(jsonData)
+    const request = await fetch(urlApi, {
         method: 'POST',
         headers:{
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.token
         },
         body: JSON.stringify(jsonData)
+
     });
-    listar();
-    alertas("Se ha registrado el usuario exitosamente!",1)
+    listarAutomoviles();
+    alertas("Se ha registrado el vehiculo exitosamente!",1)
     document.getElementById("contentModal").innerHTML = '';
-    var myModalEl = document.getElementById('modalAutomovil')
+    var myModalEl = document.getElementById('modalautomovil')
     var modal = bootstrap.Modal.getInstance(myModalEl) // Returns a Bootstrap modal instance
     modal.hide();
 }
