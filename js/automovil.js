@@ -38,7 +38,7 @@ function verAutomovil(id) {
             myModal.toggle();
         })
 }
-function user() {
+async function user() {
     validaToken();
     var settings = {
         method: 'GET',
@@ -48,7 +48,7 @@ function user() {
             'Authorization': localStorage.token
         },
     }
-    fetch(urlApis + "user", settings)
+    const request = await fetch(urlApis + "user", settings)
         .then(response => response.json())
         .then(function (users) {
             usuarios=users.data
@@ -61,7 +61,7 @@ function user() {
                 select.add(opcion);
 
             }
-            select.selectedIndex = 0;
+
         })
 }
 function listarAutomoviles(){
@@ -183,7 +183,8 @@ function verModificarAutomovil(id){
                     <label for="user" class="form-label">Register user</label>
                 <select class="form-control" id="user" name="user" required>
                 <script>user()</script>
-                            
+                            <option >${cars.user.id}</option>
+                         
                    
                 </select><br>
                     
