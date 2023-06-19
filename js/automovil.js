@@ -1,5 +1,5 @@
 
-const urlApi = "http://localhost:8088/carss/";
+const urlApi = "http://localhost:8088/carss";
 const urlApis = "http://localhost:8088/";
 function verAutomovil(id) {
     validaToken();
@@ -11,7 +11,7 @@ function verAutomovil(id) {
             'Authorization': localStorage.token
         },
     }
-    fetch(urlApi +id, settings)
+    fetch(urlApi +"/"+id, settings)
         .then(response => response.json())
         .then(function (cars) {
             console.log(cars)
@@ -36,6 +36,32 @@ function verAutomovil(id) {
             document.getElementById("contentModalm").innerHTML = cadena;
             var myModal = new bootstrap.Modal(document.getElementById('modalautomovil'))
             myModal.toggle();
+        })
+}
+function user() {
+    validaToken();
+    var settings = {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.token
+        },
+    }
+    fetch(urlApis + "user", settings)
+        .then(response => response.json())
+        .then(function (users) {
+            usuarios=users.data
+            console.log(usuarios[0])
+            var select = document.getElementById("user");
+
+            for(var i = 0; i < usuarios.length; i++) {
+                var opcion = document.createElement("option");
+                opcion.text = usuarios[i].id;
+                select.add(opcion);
+
+            }
+            select.selectedIndex = 0;
         })
 }
 function listarAutomoviles(){
@@ -94,7 +120,7 @@ function eliminaAutomovil(id){
             'Authorization': localStorage.token
         },
     }
-    fetch(urlApi+id,settings)
+    fetch(urlApi+"/"+id,settings)
     .then(response => response.json())
     .then(function(data){
         listarAutomoviles();
@@ -103,6 +129,7 @@ function eliminaAutomovil(id){
 }
 
 function verModificarAutomovil(id){
+    user();
     validaToken();
     var settings={
         method: 'GET',
@@ -112,7 +139,7 @@ function verModificarAutomovil(id){
             'Authorization': localStorage.token
         },
     }
-    fetch(urlApi+id,settings)
+    fetch(urlApi+"/"+id,settings)
     .then(response => response.json())
     .then(function(response){
             var cadena='';
@@ -131,26 +158,35 @@ function verModificarAutomovil(id){
                     <label for="car" class="form-label">Car</label>'
                     <input type="text" class="form-control" name="car" id="car" required value="${cars.car}"> <br>
                     
-                    <label for="carmodel"  class="form-label">Car model</label>
-                    <input type="text" class="form-control" name="carmodel" id="carmodel" required value="${cars.car_model}"> <br>
+                    <label for="car_model"  class="form-label">Car model</label>
+                    <input type="text" class="form-control" name="car_model" id="car_model" required value="${cars.car_model}"> <br>
                     
-                    <label for="carcolor"  class="form-label">Car Color</label>
-                    <input type="text" class="form-control" name="carcolor" id="carcolor" required value="${cars.car_color}"> <br>
+                    <label for="car_color"  class="form-label">Car Color</label>
+                    <input type="text" class="form-control" name="car_color" id="car_color" required value="${cars.car_color}"> <br>
                    
-                    <label for="carmodelyear"  class="form-label">Car model year</label>
-                    <input type="text" class="form-control" name="carmodelyear" id="carmodelyear" required value="${cars.car_model_year}"> <br>
+                    <label for="car_model_year"  class="form-label">Car model year</label>
+                    <input type="number" class="form-control" name="car_model_year" id="car_model_year" required value="${cars.car_model_year}"> <br>
                    
-                    <label for="carvin"  class="form-label">Car Vin</label>
-                    <input type="text" class="form-control" name="carvin" id="carvin" required value="${cars.car_vin}"> <br>
+                    <label for="car_vin"  class="form-label">Car Vin</label>
+                    <input type="text" class="form-control" name="car_vin" id="car_vin" required value="${cars.car_vin}"> <br>
                     
                     <label for="price"  class="form-label">Price</label>
                     <input type="text" class="form-control" name="price" id="price" required value="${cars.price}"> <br>
                     
                     <label for="avalability"  class="form-label">Avalability</label>
-                    <input type="text" class="form-control" name="avalability" id="avalability" required value="${cars.avalability}"> <br>
+                    <select class="form-control" id="availability" name="availability" required>
+                       
+                        <option value="true">True</option>
+                        <option value="false" >False</option>
+                </select><br>
+                
+                    <label for="user" class="form-label">Register user</label>
+                <select class="form-control" id="user" name="user" required>
+                <script>user()</script>
+                            
+                   
+                </select><br>
                     
-                    <label for="user"  class="form-label">Register User</label>
-                    <input type="text" class="form-control" name="user" id="user" required value="${cars.user.id}"> <br>
        
                     <button type="button" class="btn btn-outline-warning" 
                         onclick="modificarAutomovil('${cars.id}')">Modificar
@@ -167,11 +203,17 @@ async function modificarAutomovil(id){
     validaToken();
     var myForm = document.getElementById("modificar");
     var formData = new FormData(myForm);
+
     var jsonData = {};
     for(var [k, v] of formData){//convertimos los datos a json
-        jsonData[k] = v;
+        if (k == "user") {
+            jsonData[k] = { id: v };
+        } else {
+            jsonData[k] = v;
+        }
+
     }
-    const request = await fetch(urlApi+"/carss/"+id, {
+    const request = await fetch(urlApi+"/"+id, {
         method: 'PUT',
         headers:{
             'Accept': 'application/json',
@@ -180,10 +222,11 @@ async function modificarAutomovil(id){
         },
         body: JSON.stringify(jsonData)
     });
+    console.log(jsonData)
     listarAutomoviles();
-    alertas("Se ha modificado el vehiculo exitosamente!",1)
-    document.getElementById("contentModal").innerHTML = '';
-    var myModalEl = document.getElementById('modalUsuario')
+    //alertas("Se ha modificado el vehiculo exitosamente!",1)
+    document.getElementById("contentModalm").innerHTML = '';
+    var myModalEl = document.getElementById('modalautomovil')
     var modal = bootstrap.Modal.getInstance(myModalEl) // Returns a Bootstrap modal instance
     modal.hide();
 }
@@ -205,33 +248,9 @@ function alertas(mensaje,tipo){
                  </div>`;
     document.getElementById("datos").innerHTML = alerta;
 }
-function user() {
-    validaToken();
-    var settings = {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': localStorage.token
-        },
-    }
-    fetch(urlApis + "user", settings)
-        .then(response => response.json())
-        .then(function (users) {
-            usuarios=users.data
-            console.log(usuarios[0])
-            var select = document.getElementById("user");
 
-            for(var i = 0; i < usuarios.length; i++) {
-                var opcion = document.createElement("option");
-                opcion.text = usuarios[i].id;
 
-                select.add(opcion);
 
-            }
-
-        })
-}
 function registerForm1(){
     user();
     cadena = `
@@ -240,26 +259,27 @@ function registerForm1(){
             </div>
               
             <form action="" method="post" id="myform2">
-
-                <input type="hidden" name="id" id="id">
+            
+                <label for="id" class="form-label">Id</label><br>
+                <input type="text"  class="form-control" name="id" id="id" required><br>
 
                 <label for="car" class="form-label">Car</label>
-                <input type="text" class="form-control" name="Car" id="car" required> <br>
+                <input type="text" class="form-control" name="car" id="car" required> <br>
 
                 <label for="car_model"  class="form-label">Car Model</label>
-                <input type="text" class="form-control" name="Car Model" id="car_model" required> <br>
+                <input type="text" class="form-control" name="car_model" id="car_model" required> <br>
 
                 <label for="car_color" class="form-label">Car color</label>
-                <input type="car_color" class="form-control" name="car color" id="car_color" required> <br>
+                <input type="text" class="form-control" name="car_color" id="car_color" required> <br>
 
                 <label for="car_model_year" class="form-label">car model year</label>
-                <input type="number" class="form-control" id="car_model_year" name="car model year" required> <br>
+                <input type="number" class="form-control" id="car_model_year" name="car_model_year" required> <br>
 
                 <label for="car_vin" class="form-label">car vin year</label>
-                <input type="text" class="form-control" id="car_vin" name="car vin " required> <br>
+                <input type="text" class="form-control" id="car_vin" name="car_vin " required> <br>
 
                 <label for="price" class="form-label">price</label>
-                <input type="number" class="form-control" id="price" name="price" required> <br>
+                <input type="text" class="form-control" id="price" name="price" required> <br>
 
                 <label for="availability" class="form-label">availability</label>
                 <select class="form-control" id="availability" name="availability" required>
@@ -288,7 +308,11 @@ async function registrarAutomovil(){
 
     var jsonData = {};
     for(var [k, v] of formData){//convertimos los datos a json
-        jsonData[k] = v;
+        if (k == "user") {
+            jsonData[k] = { id: v };
+        } else {
+            jsonData[k] = v;
+        }
     }
     jsonData=jsonData
     console.log(jsonData)
@@ -303,8 +327,8 @@ async function registrarAutomovil(){
 
     });
     listarAutomoviles();
-    alertas("Se ha registrado el vehiculo exitosamente!",1)
-    document.getElementById("contentModal").innerHTML = '';
+    //alertas("Se ha registrado el vehiculo exitosamente!",1)
+    document.getElementById("contentModalm").innerHTML = '';
     var myModalEl = document.getElementById('modalautomovil')
     var modal = bootstrap.Modal.getInstance(myModalEl) // Returns a Bootstrap modal instance
     modal.hide();
