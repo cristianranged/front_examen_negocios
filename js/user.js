@@ -1,5 +1,5 @@
-//funciones propias de la app
-const urlApi = "http://localhost:8088";//colocar la url con el puerto
+
+var urlApi = "http://localhost:8088";//colocar la url con el puerto
 
 async function login(){
     var myForm = document.getElementById("myForm");
@@ -24,7 +24,7 @@ async function login(){
             icon: 'success',
             title: 'logeado exitosamente',
             showConfirmButton: false,
-            timer: 3500
+            timer: 350000
           })
         const respuesta = await request.json();
         localStorage.token = respuesta.data.token;
@@ -61,6 +61,7 @@ function listar(){
             for(const usuario of users.data){
                 console.log(usuario.email)
                 usuarios += `
+                <table id="listar">
                 <tr>
                     <th scope="row">${usuario.id}</th>
                     <td>${usuario.firstName}</td>
@@ -78,32 +79,47 @@ function listar(){
                         <i class="fa-solid fa-eye"></i>
                     </a>
                     </td>
-                </tr>`;
+                </tr>
+                </table>`;
                 
             }
             document.getElementById("listar").innerHTML = usuarios;
     })
 }
 
-function eliminaUsuario(id){
+function eliminaUsuario(id) {
     validaToken();
-    var settings={
-        method: 'DELETE',
-        headers:{
+  
+    // Muestra la confirmación con SweetAlert
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el usuario de forma permanente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        var settings = {
+          method: 'DELETE',
+          headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': localStorage.token
-
-        },
-    }
-    fetch(urlApi+"/user/"+id,settings)
-    .then(response => response.json())
-    .then(function(data){
-        listar();
-        alertas("Se ha eliminado el usuario exitosamente!",2)
-    })
-}
-
+          },
+        };
+  
+        fetch(urlApi + "/user/" + id, settings)
+          .then(response => response.json())
+          .then(function (data) {
+            listar();
+            alertas("Se ha eliminado el usuario exitosamente!", 2);
+          });
+      }
+    });
+  }
 function verModificarUsuario(id){
     validaToken();
     var settings={
@@ -168,8 +184,8 @@ async function modificarUsuario(id){
     listar();
     alertas("Se ha modificado el usuario exitosamente!",1)
     document.getElementById("contentModal").innerHTML = '';
-    var myModalEl = document.getElementById('modalUsuario')
-    var modal = bootstrap.Modal.getInstance(myModalEl) // Returns a Bootstrap modal instance
+    var myModalE = document.getElementById('modalUsuario')
+    var modal = bootstrap.Modal.getInstance(myModalE) // Returns a Bootstrap modal instance
     modal.hide();
 }
 
@@ -267,8 +283,8 @@ async function registrarUsuario(){
     listar();
     alertas("Se ha registrado el usuario exitosamente!",1)
     document.getElementById("contentModal").innerHTML = '';
-    var myModalEl = document.getElementById('modalUsuario')
-    var modal = bootstrap.Modal.getInstance(myModalEl) // Returns a Bootstrap modal instance
+    var myModalE = document.getElementById('modalUsuario')
+    var modal = bootstrap.Modal.getInstance(myModalE) // Returns a Bootstrap modal instance
     modal.hide();
 }
 

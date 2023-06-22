@@ -1,6 +1,5 @@
-
-const urlApi = "http://localhost:8088/carss";
-const urlApis = "http://localhost:8088/";
+var urlApi = "http://localhost:8088";
+var  urlApis = "http://localhost:8088/";
 function verAutomovil(id) {
     validaToken();
     var settings = {
@@ -11,7 +10,7 @@ function verAutomovil(id) {
             'Authorization': localStorage.token
         },
     }
-    fetch(urlApi +"/"+id, settings)
+    fetch(urlApi +"/carss/"+id, settings)
         .then(response => response.json())
         .then(function (cars) {
             console.log(cars)
@@ -19,6 +18,7 @@ function verAutomovil(id) {
             var vehiculo=cars;
             if(vehiculo){
                 cadena = `
+                <div id="contentModalm">
                 <div class="p-3 mb-2 bg-light text-dark">
                     <h1 class="display-5"><i class="fa-solid fa-user-pen"></i> Visualizar Vehiculo</h1>
                 </div>
@@ -30,7 +30,8 @@ function verAutomovil(id) {
                     <li class="list-group-item">Cars price: ${vehiculo.price}</li>
                     <li class="list-group-item">Cars availability: ${vehiculo.availability}</li>
                     <li class="list-group-item">Cars user: ${vehiculo.user.firstName}</li>
-                </ul>`;
+                </ul>
+                </div>`;
 
             }
             document.getElementById("contentModalm").innerHTML = cadena;
@@ -48,7 +49,7 @@ async function user() {
             'Authorization': localStorage.token
         },
     }
-    const request = await fetch(urlApis + "user", settings)
+    const request = await fetch(urlApi + "/user/", settings)
         .then(response => response.json())
         .then(function (users) {
             usuarios=users.data
@@ -74,7 +75,7 @@ function listarAutomoviles(){
             'Authorization': localStorage.token
         },
     }
-    fetch(urlApi,settings)
+    fetch(urlApi+"/carss/",settings)
         .then(response => response.json())
         .then(function(cars){
             var automoviles = '';
@@ -109,24 +110,39 @@ function listarAutomoviles(){
         })
 }
 
-function eliminaAutomovil(id){
-
+function eliminaAutomovil(id) {
     validaToken();
-    var settings={
-        method: 'DELETE',
-        headers:{
+  
+    // Muestra la confirmación con SweetAlert
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el automovil de forma permanente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        var settings = {
+          method: 'DELETE',
+          headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': localStorage.token
-        },
-    }
-    fetch(urlApi+"/"+id,settings)
-    .then(response => response.json())
-    .then(function(data){
-        listarAutomoviles();
-        alertas("Se ha eliminado el automovil exitosamente!",2)
-    })
-}
+          },
+        };
+  
+        fetch(urlApi + "/carss/" + id, settings)
+          .then(response => response.json())
+          .then(function (data) {
+            listarAutomoviles();
+            alertas("Se ha eliminado el automovil exitosamente!", 2);
+          });
+      }
+    });
+  }
 
 function verModificarAutomovil(id){
     user();
@@ -139,7 +155,7 @@ function verModificarAutomovil(id){
             'Authorization': localStorage.token
         },
     }
-    fetch(urlApi+"/"+id,settings)
+    fetch(urlApi+"/carss/"+id,settings)
     .then(response => response.json())
     .then(function(response){
             var cadena='';
@@ -147,15 +163,16 @@ function verModificarAutomovil(id){
             console.log(cars)
             if(cars){
                 cadena = `
+                <div id="contentModalm">
                 <div class="p-3 mb-2 bg-light text-dark">
-                    <h1 class="display-5"><i class="fa-solid fa-user-pen"></i> Modificar Automovil</h1>
+                    <h1 class="display-5"><i class="fa-solid fa-car"></i>Modificar Automovil</h1>
                 </div>
    
-                <form action="" method="post" id="modificar">
+                <form action="" method="post" id="modificar1">
                 
                     <input type="hidden" name="id" id="id" value="${cars.id}">
                     
-                    <label for="car" class="form-label">Car</label>'
+                    <label for="car" class="form-label">Car</label>
                     <input type="text" class="form-control" name="car" id="car" required value="${cars.car}"> <br>
                     
                     <label for="car_model"  class="form-label">Car model</label>
@@ -192,7 +209,8 @@ function verModificarAutomovil(id){
                     <button type="button" class="btn btn-outline-warning" 
                         onclick="modificarAutomovil('${cars.id}')">Modificar
                     </button>
-                </form>`;
+                </form>
+                </div>`;
             }
             document.getElementById("contentModalm").innerHTML = cadena;
             var myModal = new bootstrap.Modal(document.getElementById('modalautomovil'))
@@ -202,7 +220,7 @@ function verModificarAutomovil(id){
 
 async function modificarAutomovil(id){
     validaToken();
-    var myForm = document.getElementById("modificar");
+    var myForm = document.getElementById("modificar1");
     var formData = new FormData(myForm);
 
     var jsonData = {};
@@ -214,42 +232,42 @@ async function modificarAutomovil(id){
         }
 
     }
-    const request = await fetch(urlApi+"/"+id, {
+    const request = await fetch(urlApi+"/carss/"+id, {
         method: 'PUT',
         headers:{
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': localStorage.token
         },
-        body: JSON.stringify(jsonData)
+        body: JSON.stringify(jsonData)  
     });
     console.log(jsonData)
-    listarAutomoviles();
-    //alertas("Se ha modificado el vehiculo exitosamente!",1)
-    document.getElementById("contentModalm").innerHTML = '';
-    var myModalEl = document.getElementById('modalautomovil')
-    var modal = bootstrap.Modal.getInstance(myModalEl) // Returns a Bootstrap modal instance
-    modal.hide();
-}
-
-
-
-function alertas(mensaje,tipo){
-    var color ="";
-    if(tipo == 1){//success verde
-        color="success"
+    if (request.ok) {
+        Swal.fire({
+          position: 'top-end',
+          icon: 'success',
+          title: 'Se ha actualizado con exito el automovil',
+          showConfirmButton: false,
+          timer: 1500
+        })
+        const respuesta = await request.json();
+        setTimeout(function () {
+          listarAutomoviles();
+          document.getElementById("contentModalm").innerHTML = '';
+      var myModalEl = document.getElementById("modalUsuario");
+      var modal = bootstrap.Modal.getInstance(myModalEl); // Returns a Bootstrap modal instance
+      modal.hide();
+      }, 2000);
+      }else{
+        Swal.fire({
+            position: 'top-end',
+            icon: 'error',
+            text: 'no se actualizo el automovil',
+            showConfirmButton: false,
+            timer: 3000
+          });
     }
-    else{//danger rojo
-        color = "danger"
-    }
-    var alerta =`<div class="alert alert-${color} alert-dismissible fade show" role="alert">
-                    <strong><i class="fa-solid fa-triangle-exclamation"></i></strong>
-                        ${mensaje}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                 </div>`;
-    document.getElementById("datos").innerHTML = alerta;
 }
-
 
 
 function registerForm1(){
@@ -277,7 +295,7 @@ function registerForm1(){
                 <input type="number" class="form-control" id="car_model_year" name="car_model_year" required> <br>
 
                 <label for="car_vin" class="form-label">car vin year</label>
-                <input type="text" class="form-control" id="car_vin" name="car_vin " required> <br>
+                <input type="text" class="form-control" id="car_vin" name="car_vin" required> <br>
 
                 <label for="price" class="form-label">price</label>
                 <input type="text" class="form-control" id="price" name="price" required> <br>
@@ -302,45 +320,58 @@ function registerForm1(){
             myModal.toggle();
 }
 
-async function registrarAutomovil(){
-    validaToken()
+  async function registrarAutomovil() {
+    
     var myForm = document.getElementById("myform2");
     var formData = new FormData(myForm);
 
     var jsonData = {};
-    for(var [k, v] of formData){//convertimos los datos a json
+    for (var [k, v] of formData) {
         if (k == "user") {
             jsonData[k] = { id: v };
         } else {
             jsonData[k] = v;
         }
     }
-    jsonData=jsonData
-    console.log(jsonData)
-    const request = await fetch(urlApi, {
+    
+    console.log(jsonData);
+
+    const request = await fetch(urlApi + "/carss/", {
         method: 'POST',
-        headers:{
+        headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': localStorage.token
         },
         body: JSON.stringify(jsonData)
-
     });
+
     listarAutomoviles();
-    //alertas("Se ha registrado el vehiculo exitosamente!",1)
+
     document.getElementById("contentModalm").innerHTML = '';
-    var myModalEl = document.getElementById('modalautomovil')
-    var modal = bootstrap.Modal.getInstance(myModalEl) // Returns a Bootstrap modal instance
+    var myModalEl = document.getElementById('modalautomovil');
+    var modal = new bootstrap.Modal(myModalEl); // Crea una nueva instancia del modal
     modal.hide();
 }
 
-function modalConfirmacion(texto,funcion){
-    document.getElementById("contenidoConfirmacion").innerHTML = texto;
-    var myModal = new bootstrap.Modal(document.getElementById('modalConfirmacion'))
-    myModal.toggle();
-    var confirmar = document.getElementById("confirmar");
-    confirmar.onclick = funcion;
+
+
+
+
+function alertas(mensaje,tipo){
+    var color ="";
+    if(tipo == 1){//success verde
+        color="success"
+    }
+    else{//danger rojo
+        color = "danger"
+    }
+    var alerta =`<div class="alert alert-${color} alert-dismissible fade show" role="alert">
+                    <strong><i class="fa-solid fa-triangle-exclamation"></i></strong>
+                        ${mensaje}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                 </div>`;
+    document.getElementById("datos").innerHTML= alerta;
 }
 
 function salir(){
